@@ -1,56 +1,73 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Creature.generated.h"
 
+UDELEGATE(BlueprintCallable)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCreatureDiedSignal, ACreature*, DeadCreature);
 
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCreatureTookDamageSignal, ACreature*, HitCreature);
+
+UDELEGATE(BlueprintCallable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFinishedAttackAnimationSignal, ACreature*, AttackingCreature, float, DamageMultiplier);
+
 UCLASS()
-class FIGHTSIMULATOR_API ACreature : public AActor
+class FIGHTSIMULATOR_API ACreature : public APawn
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+
 	ACreature();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void Die();
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
     void GetDamaged(float Damage);
 	void GetDamaged(float DamagePercent, bool UsesMaxHP);
+	void PlayAttackAnimation();
 
+	UFUNCTION(BlueprintCallable)
+	void BroadcastTookDamageSignal();
+	
+	UFUNCTION(BlueprintCallable)
+	void BroadcastDiedSignal();
+	
+	UFUNCTION(BlueprintCallable)
+	void BroadcastFinishedAttackSignal();
+
+	FCreatureTookDamageSignal OnCreatureTookDamageSignal;
 	FCreatureDiedSignal OnCreatureDiedSignal;
-	USkeletalMeshComponent* SkeletonMesh;
+	FFinishedAttackAnimationSignal OnFinishedAttackAnimationSignal;
 
 #pragma region CreatureStats
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _maxHP;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _currentHP;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _damageMultiplier;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _armor;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int _speed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didDie;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didAttack;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool _didGetHit;
 #pragma endregion
 };

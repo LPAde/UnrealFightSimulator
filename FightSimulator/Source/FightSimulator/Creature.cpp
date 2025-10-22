@@ -1,19 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Creature.h"
 
-// Sets default values
 ACreature::ACreature()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	SkeletonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeleton"));
-	SkeletonMesh->AddToRoot();
 }
 
-// Called when the game starts or when spawned
 void ACreature::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,7 +17,6 @@ void ACreature::Die()
 	OnCreatureDiedSignal.Broadcast(this);
 }
 
-// Called every frame
 void ACreature::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -41,6 +31,11 @@ void ACreature::GetDamaged(float Damage)
 	{
 		_currentHP = 0;
 		Die();
+	}
+	else 
+	{
+		// Only does the animation when it survived the attack.
+		_didGetHit = true;
 	}
 }
 
@@ -63,4 +58,25 @@ void ACreature::GetDamaged(float DamagePercent, bool UsesMaxHP)
 	}
 	
 	GetDamaged(Damage);
+}
+
+void ACreature::PlayAttackAnimation()
+{
+	_didAttack = true;
+}
+
+void ACreature::BroadcastTookDamageSignal()
+{
+	OnCreatureTookDamageSignal.Broadcast(this);
+}
+
+void ACreature::BroadcastDiedSignal()
+{
+	OnCreatureDiedSignal.Broadcast(this);
+}
+
+void ACreature::BroadcastFinishedAttackSignal()
+{
+	OnFinishedAttackAnimationSignal.Broadcast(this, _damageMultiplier);
+	UE_LOG(LogTemp, Warning, TEXT("BroadcastAttack"));
 }
