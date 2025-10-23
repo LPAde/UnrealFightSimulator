@@ -12,7 +12,8 @@ enum FightState
 	PlayerAction = 1,
 	PlayerAttack = 2,
 	EnemyAttack = 3,
-	End = 4
+	End = 4,
+	None = 5
 };
 
 

@@ -41,11 +41,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BroadcastFinishedAttackSignal();
 
+#pragma region Signals
+
 	FCreatureTookDamageSignal OnCreatureTookDamageSignal;
 	FCreatureDiedSignal OnCreatureDiedSignal;
 	FFinishedAttackAnimationSignal OnFinishedAttackAnimationSignal;
 
-#pragma region CreatureStats
+#pragma endregion
+
+#pragma region Stats
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _maxHP;
 
@@ -61,6 +66,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int _speed;
 
+#pragma endregion
+
+#pragma region AnimationBools
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didDie;
 
@@ -69,5 +78,6 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didGetHit;
+
 #pragma endregion
 };

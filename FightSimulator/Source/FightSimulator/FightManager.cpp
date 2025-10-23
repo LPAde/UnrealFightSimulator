@@ -129,6 +129,7 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 				uiManager->OpenEndUI();
 			}
 			break;
+		case None:
 		default:
 			break;
 	}
