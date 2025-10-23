@@ -9,6 +9,7 @@ void ACreature::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	_currentHP = _maxHP;
 }
 
 void ACreature::Die()
@@ -38,6 +39,7 @@ void ACreature::GetDamaged(float Damage)
 	}
 }
 
+// Mostly made to play around with overloading in C++, no use ingame yet.
 /// <summary>
 /// Damages the creature with a percentage based attack.
 /// </summary>
@@ -63,7 +65,6 @@ void ACreature::PlayAttackAnimation()
 {
 	_didAttack = true;
 }
-
 
 void ACreature::BroadcastTookDamageSignal()
 {

@@ -4,6 +4,7 @@
 #include "FightManager.h"
 #include "Creature.h"
 #include "FightingSimulatorGameInstance.h"
+#include "UIManager.h"
 
 #define DELAY(time, block)\
 {\
@@ -30,9 +31,9 @@ void AFightManager::BeginPlay()
 
 	Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_fightManager = this;
 
-	DELAY(3.0f, 
+	DELAY(3.0f,
 	{
-		StartAttack(_playerCreature);
+			ChangeFightState(Beginn);
 	})
 }
 
@@ -79,7 +80,7 @@ void AFightManager::EndTurn(ACreature* HitCreature)
 {
 	if (HitCreature == _playerCreature) 
 	{
-		ChangeFightState(PlayerAttack);
+		ChangeFightState(PlayerAction);
 	}
 	else
 	{
@@ -90,15 +91,27 @@ void AFightManager::EndTurn(ACreature* HitCreature)
 void AFightManager::ChangeFightState(FightState NewFightState)
 {
 	_fightState = NewFightState;
+	AUIManager* uiManager = Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_uiManager;
 
 	switch (_fightState)
 	{
 		case Beginn:
 			UE_LOG(LogTemp, Warning, TEXT("Beginn"));
+			if (_playerCreature->_speed >= _enemyCreature->_speed) 
+			{
+				ChangeFightState(PlayerAction);
+			}
+			else 
+			{
+				ChangeFightState(EnemyAttack);
+			}
 			break;
 		case PlayerAction:
 			UE_LOG(LogTemp, Warning, TEXT("PlayerAction"));
-			
+			if (uiManager)
+			{
+				uiManager->OpenAttackUI();
+			}
 
 			break;
 		case PlayerAttack:
@@ -111,6 +124,10 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 			break;
 		case End:
 			UE_LOG(LogTemp, Warning, TEXT("End"));
+			if (uiManager)
+			{
+				uiManager->OpenEndUI();
+			}
 			break;
 		default:
 			break;

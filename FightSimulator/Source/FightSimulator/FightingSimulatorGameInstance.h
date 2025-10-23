@@ -17,4 +17,7 @@ class FIGHTSIMULATOR_API UFightingSimulatorGameInstance : public UGameInstance
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class AFightManager* _fightManager;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class AUIManager* _uiManager;
 };
