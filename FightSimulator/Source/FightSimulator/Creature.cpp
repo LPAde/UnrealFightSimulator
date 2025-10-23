@@ -14,7 +14,6 @@ void ACreature::BeginPlay()
 void ACreature::Die()
 {
 	_didDie = true;
-	OnCreatureDiedSignal.Broadcast(this);
 }
 
 void ACreature::Tick(float DeltaTime)
@@ -50,11 +49,11 @@ void ACreature::GetDamaged(float DamagePercent, bool UsesMaxHP)
 
 	if (UsesMaxHP) 
 	{
-		Damage = _maxHP * DamagePercent / 100;
+		Damage = _maxHP * DamagePercent * 0.01f;
 	}
 	else 
 	{
-		Damage = _currentHP * DamagePercent / 100;
+		Damage = _currentHP * DamagePercent * 0.01f;
 	}
 	
 	GetDamaged(Damage);
@@ -64,6 +63,7 @@ void ACreature::PlayAttackAnimation()
 {
 	_didAttack = true;
 }
+
 
 void ACreature::BroadcastTookDamageSignal()
 {
@@ -78,5 +78,4 @@ void ACreature::BroadcastDiedSignal()
 void ACreature::BroadcastFinishedAttackSignal()
 {
 	OnFinishedAttackAnimationSignal.Broadcast(this, _damageMultiplier);
-	UE_LOG(LogTemp, Warning, TEXT("BroadcastAttack"));
 }

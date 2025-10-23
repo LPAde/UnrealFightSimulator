@@ -15,6 +15,8 @@ enum FightState
 	End = 4
 };
 
+
+
 UCLASS()
 class FIGHTSIMULATOR_API AFightManager : public AActor
 {
@@ -34,15 +36,24 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 	UFUNCTION()
 	void StartAttack(class ACreature* AttackingCreature);
 	UFUNCTION()
 	void Attack(class ACreature* AttackingCreature, float DamageMultiplier);
+
+	UFUNCTION(BlueprintCallable)
+	void DoPlayerAttack();
+
+	UFUNCTION()
+	void EndTurn(class ACreature* HitCreature);
+
 	void ChangeFightState(FightState NewFightState);
+
 	UPROPERTY(EditAnywhere)
-	class ACreature* _leftCreature;
+	class ACreature* _playerCreature;
 	UPROPERTY(EditAnywhere)
-	class ACreature* _rightCreature;
+	class ACreature* _enemyCreature;
 	UPROPERTY(EditAnywhere)
 	float _baseDamage;
 };

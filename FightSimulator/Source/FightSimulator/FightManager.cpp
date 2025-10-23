@@ -3,6 +3,7 @@
 
 #include "FightManager.h"
 #include "Creature.h"
+#include "FightingSimulatorGameInstance.h"
 
 #define DELAY(time, block)\
 {\
@@ -19,17 +20,19 @@ AFightManager::AFightManager()
 
 void AFightManager::BeginPlay()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start"));
 	Super::BeginPlay();
-	_leftCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
-	_rightCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
-	_leftCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
-	_rightCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
+	_playerCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
+	_enemyCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
+	_playerCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
+	_enemyCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
+	_playerCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
+	_enemyCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
+
+	Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_fightManager = this;
 
 	DELAY(3.0f, 
 	{
-		StartAttack(_leftCreature);
-	UE_LOG(LogTemp, Warning, TEXT("StartAttack"));
+		StartAttack(_playerCreature);
 	})
 }
 
@@ -45,30 +48,71 @@ void AFightManager::Tick(float DeltaTime)
 
 void AFightManager::StartAttack(ACreature* AttackingCreature)
 {
-	if (AttackingCreature == _leftCreature)
+	if (AttackingCreature == _playerCreature)
 	{
-		_leftCreature->PlayAttackAnimation();
+		_playerCreature->PlayAttackAnimation();
 	}
 	else
 	{
-		_rightCreature->PlayAttackAnimation();
+		_enemyCreature->PlayAttackAnimation();
 	}
 }
 
 void AFightManager::Attack(ACreature* AttackingCreature, float DamageMultiplier)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Attack"));
-	if (AttackingCreature == _leftCreature) 
+	if (AttackingCreature == _playerCreature) 
 	{
-		_rightCreature->GetDamaged(_baseDamage * DamageMultiplier);
+		_enemyCreature->GetDamaged(_baseDamage * DamageMultiplier);
 	}
 	else
 	{
-		_leftCreature->GetDamaged(_baseDamage * DamageMultiplier);
+		_playerCreature->GetDamaged(_baseDamage * DamageMultiplier);
+	}
+}
+
+void AFightManager::DoPlayerAttack()
+{
+	StartAttack(_playerCreature);
+}
+
+void AFightManager::EndTurn(ACreature* HitCreature)
+{
+	if (HitCreature == _playerCreature) 
+	{
+		ChangeFightState(PlayerAttack);
+	}
+	else
+	{
+		ChangeFightState(EnemyAttack);
 	}
 }
 
 void AFightManager::ChangeFightState(FightState NewFightState)
 {
 	_fightState = NewFightState;
+
+	switch (_fightState)
+	{
+		case Beginn:
+			UE_LOG(LogTemp, Warning, TEXT("Beginn"));
+			break;
+		case PlayerAction:
+			UE_LOG(LogTemp, Warning, TEXT("PlayerAction"));
+			
+
+			break;
+		case PlayerAttack:
+			UE_LOG(LogTemp, Warning, TEXT("PlayerAttack"));
+			StartAttack(_playerCreature);
+			break;
+		case EnemyAttack:
+			UE_LOG(LogTemp, Warning, TEXT("EnemyAttack"));
+			StartAttack(_enemyCreature);
+			break;
+		case End:
+			UE_LOG(LogTemp, Warning, TEXT("End"));
+			break;
+		default:
+			break;
+	}
 }
