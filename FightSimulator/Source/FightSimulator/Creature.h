@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "Creature.generated.h"
 
+#pragma region Delegates
+
 UDELEGATE(BlueprintCallable)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCreatureDiedSignal, ACreature*, DeadCreature);
 
@@ -13,13 +15,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCreatureTookDamageSignal, ACreature
 UDELEGATE(BlueprintCallable)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FFinishedAttackAnimationSignal, ACreature*, AttackingCreature, float, DamageMultiplier);
 
+#pragma endregion
+
 UCLASS()
 class FIGHTSIMULATOR_API ACreature : public APawn
 {
 	GENERATED_BODY()
 	
 public:	
-
 	ACreature();
 
 protected:
@@ -27,19 +30,22 @@ protected:
 	void Die();
 
 public:	
-	virtual void Tick(float DeltaTime) override;
     void GetDamaged(float Damage);
 	void GetDamaged(float DamagePercent, bool UsesMaxHP);
 	void PlayAttackAnimation();
 
+#pragma region Broadcast Functions
+
 	UFUNCTION(BlueprintCallable)
 	void BroadcastTookDamageSignal();
-	
+
 	UFUNCTION(BlueprintCallable)
 	void BroadcastDiedSignal();
-	
+
 	UFUNCTION(BlueprintCallable)
 	void BroadcastFinishedAttackSignal();
+
+#pragma endregion
 
 #pragma region Signals
 

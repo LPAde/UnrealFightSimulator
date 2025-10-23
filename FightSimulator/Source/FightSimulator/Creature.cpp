@@ -2,7 +2,6 @@
 
 ACreature::ACreature()
 {
-	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ACreature::BeginPlay()
@@ -15,12 +14,6 @@ void ACreature::BeginPlay()
 void ACreature::Die()
 {
 	_didDie = true;
-}
-
-void ACreature::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void ACreature::GetDamaged(float Damage)
@@ -66,6 +59,8 @@ void ACreature::PlayAttackAnimation()
 	_didAttack = true;
 }
 
+#pragma region Broadcast Functions
+
 void ACreature::BroadcastTookDamageSignal()
 {
 	OnCreatureTookDamageSignal.Broadcast(this);
@@ -80,3 +75,5 @@ void ACreature::BroadcastFinishedAttackSignal()
 {
 	OnFinishedAttackAnimationSignal.Broadcast(this, _damageMultiplier);
 }
+
+#pragma endregion

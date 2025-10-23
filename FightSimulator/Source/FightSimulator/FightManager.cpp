@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "FightManager.h"
 #include "Creature.h"
 #include "FightingSimulatorGameInstance.h"
@@ -14,14 +11,14 @@ GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()block, time, false);\
 
 AFightManager::AFightManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 }
 
 void AFightManager::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Setting up with the creature delegates.
 	_playerCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
 	_enemyCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
 	_playerCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
@@ -31,6 +28,7 @@ void AFightManager::BeginPlay()
 
 	Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_fightManager = this;
 
+	// Temp code before the creature selection is implemented.
 	DELAY(3.0f,
 	{
 			ChangeFightState(Beginn);
@@ -40,11 +38,6 @@ void AFightManager::BeginPlay()
 void AFightManager::EndFight(ACreature* DeadCreature)
 {
 	ChangeFightState(End);
-}
-
-void AFightManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void AFightManager::StartAttack(ACreature* AttackingCreature)
@@ -88,6 +81,10 @@ void AFightManager::EndTurn(ACreature* HitCreature)
 	}
 }
 
+/// <summary>
+/// Changes the current fight state and acts accordingly. 
+/// </summary>
+/// <param name="NewFightState"> The fight state the manager should switch to. </param>
 void AFightManager::ChangeFightState(FightState NewFightState)
 {
 	_fightState = NewFightState;
@@ -106,22 +103,25 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 				ChangeFightState(EnemyAttack);
 			}
 			break;
+
 		case PlayerAction:
 			UE_LOG(LogTemp, Warning, TEXT("PlayerAction"));
 			if (uiManager)
 			{
 				uiManager->OpenAttackUI();
 			}
-
 			break;
+
 		case PlayerAttack:
 			UE_LOG(LogTemp, Warning, TEXT("PlayerAttack"));
 			StartAttack(_playerCreature);
 			break;
+
 		case EnemyAttack:
 			UE_LOG(LogTemp, Warning, TEXT("EnemyAttack"));
 			StartAttack(_enemyCreature);
 			break;
+
 		case End:
 			UE_LOG(LogTemp, Warning, TEXT("End"));
 			if (uiManager)
@@ -129,6 +129,7 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 				uiManager->OpenEndUI();
 			}
 			break;
+
 		case None:
 		default:
 			break;
