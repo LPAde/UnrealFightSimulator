@@ -33,6 +33,12 @@ public:
     void GetDamaged(float Damage);
 	void GetDamaged(float DamagePercent, bool UsesMaxHP);
 	void PlayAttackAnimation();
+	void PlayEnterAnimation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetupHealthBar();
+
+	void SetupHealthBar_Implementation();
 
 #pragma region Broadcast Functions
 
@@ -84,6 +90,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didGetHit;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool _didEnter;
 
 #pragma endregion
 };

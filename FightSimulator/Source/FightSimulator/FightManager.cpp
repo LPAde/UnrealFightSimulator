@@ -18,21 +18,8 @@ void AFightManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Setting up with the creature delegates.
-	_playerCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
-	_enemyCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
-	_playerCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
-	_enemyCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
-	_playerCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
-	_enemyCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
 
 	Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_fightManager = this;
-
-	// Temp code before the creature selection is implemented.
-	DELAY(3.0f,
-	{
-			ChangeFightState(Beginn);
-	})
 }
 
 void AFightManager::EndFight(ACreature* DeadCreature)
@@ -81,6 +68,40 @@ void AFightManager::EndTurn(ACreature* HitCreature)
 	}
 }
 
+void AFightManager::SetCreature(int CreatureID)
+{
+	if (!_playerCreature) 
+	{
+		_playerCreature = _allCreatures[CreatureID];
+		_playerCreature->SetActorLocationAndRotation(_playerCreaturePosition->GetTargetLocation(), _playerCreaturePosition->GetActorRotation());
+
+		// Setting up with the enemy creature delegates.
+		_playerCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
+		_playerCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
+		_playerCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
+
+		_playerCreature->SetupHealthBar();
+	}
+	else 
+	{
+		_enemyCreature = _allCreatures[CreatureID];
+		_enemyCreature->SetActorLocationAndRotation(_enemyCreaturePosition->GetTargetLocation(), _enemyCreaturePosition->GetActorRotation());
+
+		// Setting up with the enemy creature delegates.
+		_enemyCreature->OnCreatureDiedSignal.AddDynamic(this, &AFightManager::EndFight);
+		_enemyCreature->OnCreatureTookDamageSignal.AddDynamic(this, &AFightManager::EndTurn);
+		_enemyCreature->OnFinishedAttackAnimationSignal.AddDynamic(this, &AFightManager::Attack);
+		
+		_enemyCreature->SetupHealthBar();
+
+		// TODO: Close the Widget.
+		_playerCreature->PlayEnterAnimation();
+		_enemyCreature->PlayEnterAnimation();
+
+		ChangeFightState(Beginn);
+	}
+}
+
 /// <summary>
 /// Changes the current fight state and acts accordingly. 
 /// </summary>
@@ -94,6 +115,9 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 	{
 		case Beginn:
 			UE_LOG(LogTemp, Warning, TEXT("Beginn"));
+
+			Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_uiManager->CloseCreatureSelectionScreen();
+
 			if (_playerCreature->_speed >= _enemyCreature->_speed) 
 			{
 				ChangeFightState(PlayerAction);

@@ -11,6 +11,16 @@ void AUIManager::BeginPlay()
 	Super::BeginPlay();
 
 	Cast<UFightingSimulatorGameInstance>(GetGameInstance())->_uiManager = this;
+
+	OpenCreatureSelectionScreen();
+}
+
+void AUIManager::OpenCreatureSelectionScreen_Implementation()
+{
+}
+
+void AUIManager::CloseCreatureSelectionScreen_Implementation()
+{
 }
 
 void AUIManager::OpenAttackUI_Implementation()

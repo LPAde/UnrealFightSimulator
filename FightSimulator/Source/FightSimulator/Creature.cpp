@@ -59,6 +59,17 @@ void ACreature::PlayAttackAnimation()
 	_didAttack = true;
 }
 
+void ACreature::PlayEnterAnimation()
+{
+	_didEnter = true;
+	SetupHealthBar();
+}
+
+void ACreature::SetupHealthBar_Implementation() 
+{
+
+}
+
 #pragma region Broadcast Functions
 
 void ACreature::BroadcastTookDamageSignal()

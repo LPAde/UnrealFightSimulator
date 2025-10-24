@@ -16,6 +16,15 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OpenCreatureSelectionScreen();
+
+	void OpenCreatureSelectionScreen_Implementation();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void CloseCreatureSelectionScreen();
+
+	void CloseCreatureSelectionScreen_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void OpenAttackUI();

@@ -43,12 +43,25 @@ public:
 	UFUNCTION()
 	void EndTurn(class ACreature* HitCreature);
 
+	UFUNCTION(BlueprintCallable)
+	void SetCreature(int CreatureID);
+
 	void ChangeFightState(FightState NewFightState);
 
 	UPROPERTY(EditAnywhere)
 	class ACreature* _playerCreature;
 	UPROPERTY(EditAnywhere)
 	class ACreature* _enemyCreature;
+
+	UPROPERTY(EditAnywhere)
+	class AActor* _playerCreaturePosition;
+	
+	UPROPERTY(EditAnywhere)
+	class AActor* _enemyCreaturePosition;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class ACreature*> _allCreatures;
+
 	UPROPERTY(EditAnywhere)
 	float _baseDamage;
 };
