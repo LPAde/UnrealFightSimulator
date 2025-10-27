@@ -73,3 +73,5 @@ FightSimulator/Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 FightSimulator/DerivedDataCache/*
+FightSimulator/Windows/FightSimulator/Binaries/Win64/FightSimulator.pdb
+FightSimulator/Windows/FightSimulator/Content/Paks/FightSimulator-Windows.ucas
