@@ -3,12 +3,6 @@
 #include "FightingSimulatorGameInstance.h"
 #include "UIManager.h"
 
-#define DELAY(time, block)\
-{\
-FTimerHandle TimerHandle;\
-GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()block, time, false);\
-}
-
 AFightManager::AFightManager()
 {
 
@@ -27,33 +21,47 @@ void AFightManager::EndFight(ACreature* DeadCreature)
 	ChangeFightState(End);
 }
 
-void AFightManager::StartAttack(ACreature* AttackingCreature)
+void AFightManager::StartAttack(ACreature* AttackingCreature, bool IsSpecial)
 {
+	_currentAttackType = IsSpecial ? AttackType::Special : AttackType::Normal;
+
 	if (AttackingCreature == _playerCreature)
 	{
-		_playerCreature->PlayAttackAnimation();
+		if (IsSpecial) 
+			_playerCreature->PlaySpecialAttackAnimation();
+		else
+			_playerCreature->PlayAttackAnimation();
 	}
 	else
 	{
-		_enemyCreature->PlayAttackAnimation();
+		if (IsSpecial)
+			_enemyCreature->PlaySpecialAttackAnimation();
+		else
+			_enemyCreature->PlayAttackAnimation();
 	}
 }
 
-void AFightManager::Attack(ACreature* AttackingCreature, float DamageMultiplier)
+void AFightManager::Attack(ACreature* AttackingCreature, float Damage)
 {
 	if (AttackingCreature == _playerCreature) 
 	{
-		_enemyCreature->GetDamaged(_baseDamage * DamageMultiplier);
+		if (_currentAttackType == AttackType::Normal)
+			_enemyCreature->GetDamaged(Damage);
+		else
+			_enemyCreature->GetDamaged(Damage, _playerCreature->_specialUsesMaxHP);
 	}
 	else
 	{
-		_playerCreature->GetDamaged(_baseDamage * DamageMultiplier);
+		if (_currentAttackType == AttackType::Normal)
+			_playerCreature->GetDamaged(Damage);
+		else
+			_playerCreature->GetDamaged(Damage, _enemyCreature->_specialUsesMaxHP);
 	}
 }
 
-void AFightManager::DoPlayerAttack()
+void AFightManager::DoPlayerAttack(bool IsSpecial)
 {
-	StartAttack(_playerCreature);
+	StartAttack(_playerCreature, IsSpecial);
 }
 
 void AFightManager::EndTurn(ACreature* HitCreature)
@@ -94,7 +102,6 @@ void AFightManager::SetCreature(int CreatureID)
 		
 		_enemyCreature->SetupHealthBar();
 
-		// TODO: Close the Widget.
 		_playerCreature->PlayEnterAnimation();
 		_enemyCreature->PlayEnterAnimation();
 
@@ -137,13 +144,12 @@ void AFightManager::ChangeFightState(FightState NewFightState)
 			break;
 
 		case PlayerAttack:
-			UE_LOG(LogTemp, Warning, TEXT("PlayerAttack"));
-			StartAttack(_playerCreature);
 			break;
 
 		case EnemyAttack:
 			UE_LOG(LogTemp, Warning, TEXT("EnemyAttack"));
-			StartAttack(_enemyCreature);
+			// Randomly decide if enemy attack is special or not. Currently a 25% chance.
+			StartAttack(_enemyCreature, FMath::RandRange(0, 3) == 0);
 			break;
 
 		case End:

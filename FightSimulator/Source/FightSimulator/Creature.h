@@ -27,20 +27,27 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	void Die();
 
 public:	
     void GetDamaged(float Damage);
 	void GetDamaged(float DamagePercent, bool UsesMaxHP);
-	void PlayAttackAnimation();
-	void PlayEnterAnimation();
+
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetupHealthBar();
 
 	void SetupHealthBar_Implementation();
 
-#pragma region Broadcast Functions
+#pragma region Animation Methods
+
+	void PlayAttackAnimation();
+	void PlaySpecialAttackAnimation();
+	void PlayEnterAnimation();
+	void PlayDeathAnimation();
+
+#pragma endregion
+
+#pragma region Broadcast Methods
 
 	UFUNCTION(BlueprintCallable)
 	void BroadcastTookDamageSignal();
@@ -49,7 +56,7 @@ public:
 	void BroadcastDiedSignal();
 
 	UFUNCTION(BlueprintCallable)
-	void BroadcastFinishedAttackSignal();
+	void BroadcastFinishedAttackSignal(bool IsSpecial);
 
 #pragma endregion
 
@@ -70,7 +77,13 @@ public:
 	float _currentHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float _damage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _damageMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool _specialUsesMaxHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _armor;
@@ -80,13 +93,16 @@ public:
 
 #pragma endregion
 
-#pragma region AnimationBools
+#pragma region Animation Bools
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didDie;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didAttack;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool _didSpecialAttack;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool _didGetHit;

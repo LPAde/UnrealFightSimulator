@@ -14,6 +14,11 @@ enum FightState
 	None = 5
 };
 
+UENUM(BlueprintType)
+enum class AttackType : uint8 {
+	Normal = 0 UMETA(DisplayName = "Normal"),
+	Special = 1  UMETA(DisplayName = "Special")
+};
 
 
 UCLASS()
@@ -26,19 +31,25 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
 	FightState _fightState;
+
+	UPROPERTY(VisibleAnywhere)
+	AttackType _currentAttackType;
+
 	UFUNCTION()
 	void EndFight(class ACreature* DeadCreature);
 
 public:	
 
 	UFUNCTION()
-	void StartAttack(class ACreature* AttackingCreature);
+	void StartAttack(class ACreature* AttackingCreature, bool IsSpecial);
+
 	UFUNCTION()
-	void Attack(class ACreature* AttackingCreature, float DamageMultiplier);
+	void Attack(class ACreature* AttackingCreature, float Damage);
 
 	UFUNCTION(BlueprintCallable)
-	void DoPlayerAttack();
+	void DoPlayerAttack(bool IsSpecial);
 
 	UFUNCTION()
 	void EndTurn(class ACreature* HitCreature);
@@ -48,6 +59,8 @@ public:
 
 	void ChangeFightState(FightState NewFightState);
 
+#pragma region Outliner Values
+
 	UPROPERTY(EditAnywhere)
 	class ACreature* _playerCreature;
 	UPROPERTY(EditAnywhere)
@@ -55,15 +68,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class AActor* _playerCreaturePosition;
-	
+
 	UPROPERTY(EditAnywhere)
 	class AActor* _enemyCreaturePosition;
 
 	UPROPERTY(EditAnywhere)
 	TArray<class ACreature*> _allCreatures;
 
-	UPROPERTY(EditAnywhere)
-	float _baseDamage;
+#pragma endregion
 };
-
-

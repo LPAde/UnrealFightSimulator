@@ -11,19 +11,22 @@ void ACreature::BeginPlay()
 	_currentHP = _maxHP;
 }
 
-void ACreature::Die()
-{
-	_didDie = true;
-}
-
 void ACreature::GetDamaged(float Damage)
 {
-	_currentHP -= (Damage - _armor);
+	UE_LOG(LogTemp, Warning, TEXT("Damage: %f"), Damage);
+	UE_LOG(LogTemp, Warning, TEXT("Armor: %f"), _armor);
+	float RealDamage = Damage - _armor;
+
+	// Making sure you always deal at least one damage.
+	if (RealDamage < 0)
+		RealDamage = 1;
+
+	_currentHP -= RealDamage;
 
 	if (_currentHP <= 0) 
 	{
 		_currentHP = 0;
-		Die();
+		PlayDeathAnimation();
 	}
 	else 
 	{
@@ -32,7 +35,6 @@ void ACreature::GetDamaged(float Damage)
 	}
 }
 
-// Mostly made to play around with overloading in C++, no use ingame yet.
 /// <summary>
 /// Damages the creature with a percentage based attack.
 /// </summary>
@@ -40,6 +42,7 @@ void ACreature::GetDamaged(float Damage)
 /// <param name="UsesMaxHP"> Is this damage based on max health or current health? </param>
 void ACreature::GetDamaged(float DamagePercent, bool UsesMaxHP)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SpecialAttackStrength: %f"), DamagePercent);
 	float Damage;
 
 	if (UsesMaxHP) 
@@ -54,9 +57,21 @@ void ACreature::GetDamaged(float DamagePercent, bool UsesMaxHP)
 	GetDamaged(Damage);
 }
 
+void ACreature::SetupHealthBar_Implementation()
+{
+
+}
+
+#pragma region Animation Methods
+
 void ACreature::PlayAttackAnimation()
 {
 	_didAttack = true;
+}
+
+void ACreature::PlaySpecialAttackAnimation()
+{
+	_didSpecialAttack = true;
 }
 
 void ACreature::PlayEnterAnimation()
@@ -65,12 +80,14 @@ void ACreature::PlayEnterAnimation()
 	SetupHealthBar();
 }
 
-void ACreature::SetupHealthBar_Implementation() 
+void ACreature::PlayDeathAnimation()
 {
-
+	_didDie = true;
 }
 
-#pragma region Broadcast Functions
+#pragma endregion
+
+#pragma region Broadcast Methods
 
 void ACreature::BroadcastTookDamageSignal()
 {
@@ -82,9 +99,9 @@ void ACreature::BroadcastDiedSignal()
 	OnCreatureDiedSignal.Broadcast(this);
 }
 
-void ACreature::BroadcastFinishedAttackSignal()
+void ACreature::BroadcastFinishedAttackSignal(bool IsSpecial)
 {
-	OnFinishedAttackAnimationSignal.Broadcast(this, _damageMultiplier);
+		OnFinishedAttackAnimationSignal.Broadcast(this, IsSpecial ? _damageMultiplier : _damage);
 }
 
 #pragma endregion
